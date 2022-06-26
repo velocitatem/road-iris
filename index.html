@@ -1,0 +1,109 @@
+<head>
+	<title>RoadIris</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<script>
+	window.onload = function() {
+		
+		$("#rs").hide()
+	}
+var path = (loc) => { return "https://dopravniinfo.cz/api/RoadData.ashx?road="+loc};
+function getData() {
+	var loc = $("#road").val();
+	$("#lnk").attr("href", path(loc))
+	$("#lnk").html(path(loc));
+	$("#rs").show();
+}
+
+function isClose(location, desire) {
+	var loc = location.split(" ")[1];
+	loc = parseInt(loc);
+	var ME = 2;
+	var lb = loc - ME, ub = loc + ME;
+	return desire >= lb && desire <= ub;
+}
+
+function showCam(cam) {
+	$("#res").append(`
+		<img class="img" src="https://dopravniinfo.cz/api/CameraImage.ashx?camera=${cam.Id}"></img>
+		`)
+
+}
+
+function filterData() {
+	$("#res").html('');
+	var data = $("#data").val();
+	data = JSON.parse(data);
+	var cameras = data.Camera;
+	var q = parseInt($("#km").val());
+	for(var cam in cameras) {
+		cam = cameras[cam];
+		if(isClose(cam.Title, q)) {			
+			console.log(cam);
+			showCam(cam);
+		}
+
+	}
+
+}
+
+</script>
+
+<style>
+.img {	
+	width: auto;
+	height:50vh;		
+}
+.input {
+	padding: 20px;
+}
+
+.view-btn {
+	margin-top: 20px;
+	padding: 10px;
+	background-color: #000;
+	color: #fff;
+	border: none;
+}
+
+.lnk-container {
+	margin: 10px;
+}
+
+.res {
+
+margin: 30vh;
+}
+</style>
+<html>
+	<body>
+		<center>
+		<h1>RoadIris</h1>
+		<p>
+			Since the API cannot be directly fetched, you must enter the location and once the link is generated, copy all the data and paste it into the prompt bellow. Once that data is in the entery, just press Get Pictures.
+		</p>
+		<div>
+			<input class="input" id="road" placeholder="Road Name (D0, D1, ...)"></input>
+			<input class="input" id="km" placeholder="Kilometer" type="number"></input>
+		</div>
+		<button onclick="getData()" class="view-btn" id="view">Get Link</button>
+		<div class="lnk-container">
+			<a id="lnk"></a>
+		</div>
+		<div id="rs" class="res">
+			<div id="#input" >
+				<textarea placeholder="Paste data from website here" id="data"></textarea>						
+			</div>
+
+			<button onclick="filterData()" class="view-btn">Get Pictures</button>
+		</div>
+		
+		</center>
+
+		<div  id="res">
+
+		</div>
+	</body>
+
+</html>
